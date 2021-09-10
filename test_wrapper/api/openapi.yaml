@@ -1,0 +1,153 @@
+openapi: 3.0.0
+info:
+  contact:
+    email: cf@harness.io
+    name: Feature Flag - developers
+    url: https://www.harness.io
+  title: Harness SDK Test Wrapper API
+  version: 1.0.0
+servers:
+- description: no host specified
+  url: /api/1.0
+- description: FF Test Wrappers
+  url: http://localhost:3001/api/1.0
+paths:
+  /check_flag:
+    post:
+      operationId: getFlagValue
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FlagCheckBody'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FlagCheckResponse'
+          description: OK
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Error
+        "503":
+          description: Service Unavailable
+      summary: Check the value of a flag
+      x-eov-operation-handler: controllers/DefaultController
+  /ping:
+    get:
+      operationId: ping
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PongResponse'
+          description: OK
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Error
+        "503":
+          description: Service Unavailable
+      summary: Check the system is up
+      x-eov-operation-handler: controllers/DefaultController
+components:
+  schemas:
+    FlagCheckBody:
+      description: Request to check flag in SDK
+      example:
+        flag_kind: json
+        flag_key: my_flag_key
+        target:
+          target_identifier: target_1
+          target_name: Target 1
+          attributes:
+            region: Europe
+            email: jane@example.com
+            username: jane
+      properties:
+        flag_key:
+          example: my_flag_key
+          type: string
+        flag_kind:
+          example: json
+          type: string
+        target:
+          $ref: '#/components/schemas/FlagCheckBody_target'
+      required:
+      - flag_key
+      - flag_kind
+      type: object
+    FlagCheckResponse:
+      description: Response to flag check in SDK
+      example:
+        flag_value: flag_value
+        flag_key: flag_key
+      properties:
+        flag_key:
+          type: string
+        flag_value:
+          type: string
+      required:
+      - flag_key
+      - flag_value
+      type: object
+    PongResponse:
+      description: Response to Ping
+      example:
+        pong: true
+      properties:
+        pong:
+          type: boolean
+      required:
+      - pong
+      type: object
+    ErrorResponse:
+      description: Error Status for wrapper
+      properties:
+        error_message:
+          type: string
+      required:
+      - error_message
+      type: object
+    FlagCheckBody_target_attributes:
+      example:
+        region: Europe
+        email: jane@example.com
+        username: jane
+      properties:
+        username:
+          example: jane
+          type: string
+        email:
+          example: jane@example.com
+          type: string
+        region:
+          example: Europe
+          type: string
+      type: object
+    FlagCheckBody_target:
+      example:
+        target_identifier: target_1
+        target_name: Target 1
+        attributes:
+          region: Europe
+          email: jane@example.com
+          username: jane
+      properties:
+        target_identifier:
+          example: target_1
+          type: string
+        target_name:
+          example: Target 1
+          type: string
+        attributes:
+          $ref: '#/components/schemas/FlagCheckBody_target_attributes'
+      type: object
